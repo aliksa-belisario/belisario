@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Navigation</title>
+  <style>
+    /* General Styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #6EA2D5;
+      color: white;
+      text-align: center;
+      padding-top: 80px;
+      transition: background-color 0.5s ease;
+    }
+
+    /* Header Background (Thinner Line) */
+    .header-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background-color: #2A52BE;
+      z-index: 999;
+    }
+
+    /* Logo Styling */
+    .logo {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      display: flex;
+      align-items: center; /* Align text and image vertically */
+    }
+
+    .logo img {
+      width: 50px;
+      height: auto;
+      border-radius: 5px;
+      margin-right: 10px; /* Space between the logo image and text */
+    }
+
+    .logo-text {
+      font-size: 1.5em;
+      color: white; /* Text color to make it visible on the blue background */
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* Navigation Styling */
+    nav {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      gap: 10px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: white;
+      background-color: black;
+      padding: 10px 15px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 5px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #FFC067;
+      color: black;
+    }
+
+    h1 {
+      margin-top: 50px;
+      font-size: 2em;
+    }
+
+    /* Home Containers Parent */
+    .home-containers {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      max-height: 80vh; /* Set a max-height to limit the container's height */
+      overflow-y: auto; /* Allow scrolling when content exceeds height */
+      padding: 10px;
+    }
+
+    /* Larger Containers */
+    .container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      width: 300px;
+      height: 400px;
+      margin: 10px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 2px solid white;
+      border-radius: 10px;
+      text-align: center;
+      padding: 20px;
+      overflow: auto;
+    }
+
+    .container-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Title with Rounded Shape */
+    .container-title {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin: 5px 0;
+      color: white;
+      text-transform: uppercase;
+      text-shadow: 1px 1px 2px black;
+      background-color: #2A52BE;
+      padding: 10px 15px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+
+    .container-image {
+      width: 100%;
+      max-height: 200px;
+      border-radius: 5px;
+      margin: 15px 0;
+      object-fit: cover;
+    }
+
+    .container-description {
+      font-size: 1em;
+      color: white;
+      line-height: 1.5;
+      text-align: center;
+      word-wrap: break-word;
+    }
+
+    /* Page visibility */
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* Profile Section Styles */
+    .profile {
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    .profile-picture {
+      border-radius: 50%;
+      border: 4px solid white;
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+    }
+
+    .profile h2 {
+      margin: 10px 0 5px;
+      font-size: 1.6em;
+    }
+
+    .profile p {
+      font-size: 1.1em;
+      max-width: 300px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Media Queries for Smaller Screens */
+    @media (max-width: 600px) {
+      .container-description {
+        font-size: 0.9em;
+      }
+
+      .container {
+        width: 90%;
+        height: auto;
+      }
+    }
+
+    /* Flex Page and Blog Page */
+    #blog .home-containers, #flex .home-containers {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    /* Styling for Video Containers */
+    .video-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 45%; /* Ensure all videos are the same width */
+      margin: 10px;
+    }
+
+    .video-container video {
+      width: 100%;
+      height: 300px; /* Fixed height for all videos */
+      object-fit: cover; /* Maintain aspect ratio while covering container */
+    }
+
+    /* For Animation 2 Video */
+    #flex .video-container:nth-child(4) video {
+      object-fit: contain; /* Ensures the whole video is visible */
+    }
+
+    /* Ensure the Flex page containers remain fixed */
+    #flex .home-containers {
+      overflow: unset; /* Do not make the Flex page containers scrollable */
+      max-height: unset;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="header-background"></div>
+
+  <div class="logo">
+    <a href="javascript:void(0)" onclick="navigate('home', event)">
+      <img src="logo.gif" alt="Logo">
+      <span class="logo-text">Aj's website</span> <!-- Added text -->
+    </a>
+  </div>
+
+  <nav>
+    <a href="javascript:void(0)" onclick="navigate('home', event)">Home</a>
+    <a href="javascript:void(0)" onclick="navigate('blog', event)">Blog</a>
+    <a href="javascript:void(0)" onclick="navigate('flex', event)">Flex</a>
+  </nav>
+
+  <div id="home" class="page active">
+    <h1>Home Page</h1>
+
+    <div class="profile">
+      <img src="profile.jpg" alt="Profile Picture" class="profile-picture">
+      <h2>Aj Belisario</h2>
+      <p>Hi! I'm Alyxa Janine Belisario, a first-year BSEMC student, and this is my personal website.</p>
+    </div>
+
+    <div class="home-containers">
+      <div class="container">
+        <div class="container-content">
+          <h3 class="container-title">About Me</h3>
+          <img src="homepic1.jpg" alt="Image 1" class="container-image">
+          <p class="container-description">I am an aspiring artist. I enrolled in this course to further hone my creative skills, as well as learn and experience new ones related to this field. hoping to broaden my horizon and hopefully to find myelf working in this field as a future career. </p>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="container-content">
+          <h3 class="container-title">Skills</h3>
+          <img src="homepic2.jpg" alt="Image 2" class="container-image">
+          <p class="container-description">I do art. I studied human anatomy, values, perspective, and all sorts of the basic fundamentals for art. My mediums are both traditional and digital. I also started learning coding basics in C language, HTML, and CSS in this first semester, and I will strive to get better at it.</p>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="container-content">
+          <h3 class="container-title">Hobbies and Interests</h3>
+          <img src="homepic3.jpg" alt="Image 3" class="container-image">
+          <p class="container-description">I like anything related to art like music and painting. I love listening to the sounds of nature, reading novels and comics, stargazing, watching animated films and playing video games.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="blog" class="page">
+  <h1>Blog Page</h1>
+  <div class="home-containers">
+    <div class="container">
+      <h3 class="container-title">Infographics</h3>
+      <img src="infographics.jpg" alt="Infographics Image" class="container-image">
+      <p class="container-description"></p>
+    </div>
+    <div class="container">
+      <h3 class="container-title">Cyber Crime Report</h3>
+      <p class="container-description">
+        <iframe src="C:\Users\alyxa\.vscode\cyber.pdf" width="100%" height="400px"></iframe>
+      </p>
+    </div>
+  </div>
+
+  <div class="home-containers">
+    <div class="container">
+      <h3 class="container-title">What I Learned</h3>
+      <img src="learnB.jpg" alt="What I Learned Image" class="container-image">
+      <p class="container-description">In this semester of intro to computing, I gained valuable knowledge about the fundamentals of technology and computing. I learned about the technology timeline, which outlined key developments from early computing machines to modern technologies, helping me understand the rapid evolution of the field. The course also covered the information processing cycle, explaining how computers process data through input, processing, storage, and output.
+
+We explored the components of computer systems, learning about both hardware (like CPUs and storage devices) and software (such as operating systems and applications). The course also introduced cybercrime, including types like hacking, phishing, and identity theft, as well as the profiles of cybercriminals. This made me realize the importance of computer security, such as using firewalls, encryption, and strong passwords to protect data.
+
+Finally, I learned how to make wireframes, its significance to website designing and planning. I also learned the basics of HTML and CSS, which are used to build and style websites. This course provided a well-rounded foundation, enhancing my understanding of how technology impacts daily life and the need for security in the digital world.</p>
+    </div>
+    <div class="container">
+      <h3 class="container-title">Reflection</h3>
+      <img src="reflectB.jpg" alt="Reflection Image" class="container-image">
+      <p class="container-description"> Partaking Intro to Computing has been a great learning experience for me. I was amazed to discover how early technologies, like the abacus, evolved into supercomputers and eventually into the small, powerful devices we use today. It really highlighted how much technology has advanced over time.
+
+I also learned how computers process data through the information processing cycle, which involves input, processing, storage, and output. Understanding how the different parts of computer systems like hardware and software work together was eye opening.
+
+The course also introduced me to cybercrime, including threats like hacking and identity theft, and the importance of computer security to protect our information. Lastly, learning the basics of HTML and CSS gave me a hands-on look at how websites are created and designed.
+
+Overall, this course helped me understand how technology works, how far it has come, and why securing our digital lives is so important. It sparked my interest in computing, and I’m excited to keep learning.</p>
+    </div>
+    <div class="container">
+      <h3 class="container-title">Future Goals</h3>
+      <img src="goalsB.jpg" alt="Future Goals Image" class="container-image">
+      <p class="container-description">For now, i am still having a hard time coding, and catching up with every lessons. As i am not as tech-savy as most people in this field. but Im going to strive hard to catch up, and challenge my self to grow, and get more pationate with this path as im going.</p>
+    </div>
+  </div>
+
+  <div class="home-containers">
+    <div class="container" style="width: 600px;">
+      <h3 class="container-title">HOW I SEE MYSELF IN 8 YEARS</h3>
+      <video controls style="width: 100%; height: auto;">
+        <source src="future.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</div>
+
+
+  <div id="flex" class="page">
+    <h1>Flex Page</h1>
+
+
+    <div class="home-containers">
+      
+      <div class="video-container">
+        <h3 class="container-title">Walk</h3>
+        <video controls>
+          <source src="walk.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <div class="video-container">
+        <h3 class="container-title">Bounce</h3>
+        <video controls>
+          <source src="bounce.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+     
+      <div class="video-container">
+        <h3 class="container-title">Animation 1</h3>
+        <video controls>
+          <source src="animation1.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <div class="video-container">
+        <h3 class="container-title">Animation 2</h3>
+        <video controls>
+          <source src="animation2.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <p>Version 1.0 | Created by: Alyxa Janine L. Belisario 2024</p>
+</footer>
+
+  <script>
+    function navigate(pageId, event) {
+      event.preventDefault();
+      const pages = document.querySelectorAll('.page');
+      pages.forEach(page => page.classList.remove('active'));
+      const selectedPage = document.getElementById(pageId);
+      if (selectedPage) {
+        selectedPage.classList.add('active');
+      }
+
+      const body = document.body;
+      body.style.backgroundColor = pageId === 'home' ? '#6EA2D5' :
+               pageId === 'blog' ? '#92C1E9' :
+               pageId === 'flex' ? '#4E92B0' : '#FFFFFF';
+    }
+  </script>
+</body>
+</html>
